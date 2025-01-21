@@ -1,3 +1,11 @@
+## v4.0.0-extensibility-preview.3 (Dec 13, 2024)
+## v4.0.0-extensibility-preview.2 (Dec 09, 2024)
+## v4.0.0-extensibility-preview.1 (Dec 09, 2024)
+## v4.0.0-extensibility-preview.0 (Nov 28, 2024)
+- Integrate Application Extensions Project. (#2099)[https://github.com/SalesforceCommerceCloud/pwa-kit/pull/2099]
+- Add new `getStaticAssetUrl` utility to access assets specifically in the `/static` folder. (#2040)[https://github.com/SalesforceCommerceCloud/pwa-kit/pull/2040]
+- Update Application Extensions import in `react-rendering.js` and `main.js` (#2004)[https://github.com/SalesforceCommerceCloud/pwa-kit/pull/2004]
+- Define interface of the app extension's config [#2010](https://github.com/SalesforceCommerceCloud/pwa-kit/pull/2010)
 ## v3.9.0-dev (Oct 29, 2024)
 - Fix the performance logging util to not round duration. [#2199](https://github.com/SalesforceCommerceCloud/pwa-kit/pull/2199)
 - Add RedirectWithStatus component, allowing finer grained control of rediriects and their status code [#2173](https://github.com/SalesforceCommerceCloud/pwa-kit/pull/2173)

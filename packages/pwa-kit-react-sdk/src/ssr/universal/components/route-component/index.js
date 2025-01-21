@@ -402,11 +402,18 @@ export const routeComponent = (Wrapped, isPage, locals) => {
  *
  * @private
  */
-export const getRoutes = (locals) => {
+export const getRoutes = (locals = {}) => {
     let _routes = routes
+    const {applicationExtensions = []} = locals
     if (typeof routes === 'function') {
         _routes = routes()
     }
+
+    // Call the `extendRoutes` function for all the Application Extensions.
+    applicationExtensions.forEach((applicationExtension) => {
+        _routes = applicationExtension.extendRoutes(_routes)
+    })
+
     const allRoutes = [
         // NOTE: this route needs to be above _routes, in case _routes has a fallback route of `path: '*'`
         {path: '/__pwa-kit/refresh', component: Refresh},

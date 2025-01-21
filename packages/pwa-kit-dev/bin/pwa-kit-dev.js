@@ -14,6 +14,13 @@ const program = require('commander')
 const validator = require('validator')
 const {execSync: _execSync} = require('child_process')
 const {getConfig} = require('@salesforce/pwa-kit-runtime/utils/ssr-config')
+const {
+    buildBabelExtensibilityArgs
+} = require('@salesforce/pwa-kit-extension-sdk/configs/babel/utils')
+const {
+    getConfiguredExtensions,
+    validateExtensionDependencies
+} = require('@salesforce/pwa-kit-extension-sdk/shared/utils')
 
 // Scripts in ./bin have never gone through babel, so we
 // don't have a good pattern for mixing compiled/un-compiled
@@ -59,17 +66,24 @@ const getProjectName = async () => {
     return projectPkg.name
 }
 
-const getAppEntrypoint = async () => {
-    const defaultPath = p.join(process.cwd(), 'app', 'ssr.js')
-    if (await fse.pathExists(defaultPath)) return defaultPath
+const getAppEntrypoint = () => {
+    return p.join(process.cwd(), 'app', 'ssr.js')
+}
 
-    const projectPkg = await scriptUtils.getProjectPkg()
-    const {overridesDir} = projectPkg?.ccExtensibility ?? {}
-    if (!overridesDir || typeof overridesDir !== 'string') return null
-
-    const overridePath = p.join(process.cwd(), p.sep + overridesDir, 'app', 'ssr.js')
-    if (await fse.pathExists(overridePath)) return overridePath
-    return null
+/**
+ * For some commands, we like to validate the configuration first before proceeding with the rest of the command.
+ * Currently, we're only validating the app extensions, but we plan to validate other parts of the config in the future.
+ */
+const validateAppConfiguration = () => {
+    const extensions = getConfiguredExtensions(getConfig())
+    if (extensions.length > 0) {
+        info('Validating app extensions...')
+        const {success, errors} = validateExtensionDependencies(extensions)
+        if (!success) {
+            errors.forEach((e) => error(e.message))
+            throw new Error('Please double-check your configuration.')
+        }
+    }
 }
 
 const main = async () => {
@@ -238,6 +252,9 @@ const main = async () => {
             ).default('--extensions ".js,.jsx,.ts,.tsx"')
         )
         .action(async ({inspect, noHMR, babelArgs}) => {
+            validateAppConfiguration()
+
+            info('Starting server...')
             // We use @babel/node instead of node because we want to support ES6 import syntax
             const babelNode = p.join(
                 require.resolve('webpack'),
@@ -248,18 +265,17 @@ const main = async () => {
                 'babel-node'
             )
 
-            const entrypoint = await getAppEntrypoint()
-            if (!entrypoint) {
-                error('Could not determine app entrypoint.')
-                process.exit(1)
-            }
-
-            execSync(`${babelNode} ${inspect ? '--inspect' : ''} ${babelArgs} ${entrypoint}`, {
-                env: {
-                    ...process.env,
-                    ...(noHMR ? {HMR: 'false'} : {})
+            execSync(
+                `"${babelNode}" ${inspect ? '--inspect' : ''} ${buildBabelExtensibilityArgs(
+                    getConfig()
+                )} ${babelArgs} "${getAppEntrypoint()}"`,
+                {
+                    env: {
+                        ...process.env,
+                        ...(noHMR ? {HMR: 'false'} : {})
+                    }
                 }
-            })
+            )
         })
 
     program
@@ -274,13 +290,16 @@ const main = async () => {
         )
         .description(`build your app for production`)
         .action(async ({buildDirectory}) => {
+            validateAppConfiguration()
+
+            info('Building...')
             const webpack = p.join(require.resolve('webpack'), '..', '..', '..', '.bin', 'webpack')
             const projectWebpack = p.join(process.cwd(), 'webpack.config.js')
             const webpackConf = fse.pathExistsSync(projectWebpack)
                 ? projectWebpack
                 : p.join(__dirname, '..', 'configs', 'webpack', 'config.js')
             fse.emptyDirSync(buildDirectory)
-            execSync(`${webpack} --config ${webpackConf}`, {
+            execSync(`"${webpack}" --config "${webpackConf}"`, {
                 env: {
                     NODE_ENV: 'production',
                     ...process.env,
@@ -309,6 +328,8 @@ const main = async () => {
                     '// This file is required by Managed Runtime for historical reasons.\n'
                 )
             }
+
+            success(`Build directory is at ${buildDirectory}`)
         })
 
     managedRuntimeCommand('push')
@@ -424,7 +445,9 @@ const main = async () => {
         .action(async (path, {fix}) => {
             const eslint = p.join(require.resolve('eslint'), '..', '..', '..', '.bin', 'eslint')
             execSync(
-                `${eslint} --resolve-plugins-relative-to ${pkgRoot}${fix ? ' --fix' : ''} "${path}"`
+                `"${eslint}" --resolve-plugins-relative-to "${pkgRoot}"${
+                    fix ? ' --fix' : ''
+                } "${path}"`
             )
         })
 
@@ -434,16 +457,19 @@ const main = async () => {
         .argument('<path>', 'path or glob to format')
         .action(async (path) => {
             const prettier = p.join(require.resolve('prettier'), '..', '..', '.bin', 'prettier')
-            execSync(`${prettier} --write "${path}"`)
+            execSync(`"${prettier}" --write "${path}"`)
         })
 
     program
         .command('test')
+        .allowUnknownOption()
         .description('test the project')
         .action(async (_, {args}) => {
             const jest = p.join(require.resolve('jest'), '..', '..', '..', '.bin', 'jest')
             execSync(
-                `${jest} --passWithNoTests --maxWorkers=2${args.length ? ' ' + args.join(' ') : ''}`
+                `"${jest}" --passWithNoTests --maxWorkers=2${
+                    args.length ? ' ' + args.join(' ') : ''
+                }`
             )
         })
 

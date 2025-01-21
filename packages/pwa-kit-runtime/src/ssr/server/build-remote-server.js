@@ -51,6 +51,7 @@ import awsServerlessExpress from 'aws-serverless-express'
 import expressLogging from 'morgan'
 import logger from '../../utils/logger-instance'
 import {createProxyMiddleware} from 'http-proxy-middleware'
+import {applyApplicationExtensions} from '@salesforce/pwa-kit-extension-sdk/express'
 
 /**
  * An Array of mime-types (Content-Type values) that are considered
@@ -778,6 +779,10 @@ export const RemoteServerFactory = {
         app.use(ssrMiddleware)
         app.use(errorHandlerMiddleware)
 
+        // NOTE: Think about changing the name of this function to `applyApplicationExtensions`. First look into
+        // what a common pattern is for application enhancement.
+        applyApplicationExtensions(app)
+
         if (options?.encodeNonAsciiHttpHeaders) {
             app.use(encodeNonAsciiMiddleware)
         }
@@ -800,7 +805,7 @@ export const RemoteServerFactory = {
             )
         ) {
             /* istanbul ignore next */
-            console.warn(
+            logger.warn(
                 `Warning: You are using Node ${process.versions.node}. ` +
                     `Your app may not work as expected when deployed to Managed ` +
                     `Runtime servers which are compatible with Node ${requiredNode}`
@@ -860,7 +865,7 @@ export const RemoteServerFactory = {
         }
 
         if (!options.strictSSL) {
-            console.warn('The SSR Server has _strictSSL turned off for https requests')
+            logger.warn('The SSR Server has _strictSSL turned off for https requests')
         }
     },
 

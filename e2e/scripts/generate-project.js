@@ -60,8 +60,6 @@ program
   .option("--project-key <key>", "Project key", (value) => {
     const validKeys = [
       "retail-app-demo",
-      "retail-app-ext",
-      "retail-app-no-ext",
       "retail-app-private-client",
     ];
     if (!validKeys.includes(value)) {

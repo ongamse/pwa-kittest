@@ -15,10 +15,10 @@ import {
     AccordionButton,
     AccordionPanel,
     AccordionIcon,
+    Heading,
     Stack,
-    Text,
-    Heading
-} from '@salesforce/retail-react-app/app/components/shared/ui'
+    Text
+} from '@chakra-ui/react'
 import Link from '@salesforce/retail-react-app/app/components/link'
 
 // Others

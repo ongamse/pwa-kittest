@@ -7,15 +7,20 @@
 /* global __webpack_require__ */
 import React, {useRef} from 'react'
 import {hydrateRoot} from 'react-dom/client'
+import PropTypes from 'prop-types'
 import {BrowserRouter as Router} from 'react-router-dom'
+import {loadableReady} from '@loadable/component'
+import {
+    getApplicationExtensions,
+    withApplicationExtensions
+} from '@salesforce/pwa-kit-extension-sdk/react'
+
 import {ServerContext, CorrelationIdProvider} from '../universal/contexts'
 import App from '../universal/components/_app'
 import {getAppConfig} from '../universal/compatibility'
 import Switch from '../universal/components/switch'
 import {getRoutes, routeComponent} from '../universal/components/route-component'
-import {loadableReady} from '@loadable/component'
 import {uuidv4} from '../../utils/uuidv4.client'
-import PropTypes from 'prop-types'
 import logger from '../../utils/logger-instance'
 
 /* istanbul ignore next */
@@ -41,9 +46,15 @@ export const registerServiceWorker = (url) => {
     })
 }
 
-export const OuterApp = ({routes, error, WrappedApp, locals, onHydrate}) => {
+export const OuterApp = ({routes, error, extensions, WrappedApp, locals, onHydrate}) => {
     const AppConfig = getAppConfig()
     const isInitialPageRef = useRef(true)
+
+    // Invoke the Application Extensions 'beforeRouteMatch' hook. This hook accepts ALL the routes for the current
+    // application including all routes added from the configured extensions.
+    extensions.forEach((applicationExtension) => {
+        routes = applicationExtension.beforeRouteMatch(routes)
+    })
 
     return (
         <ServerContext.Provider value={{}}>
@@ -75,12 +86,13 @@ export const OuterApp = ({routes, error, WrappedApp, locals, onHydrate}) => {
 OuterApp.propTypes = {
     routes: PropTypes.array.isRequired,
     error: PropTypes.object,
+    extensions: PropTypes.array,
     WrappedApp: PropTypes.func.isRequired,
     locals: PropTypes.object,
     onHydrate: PropTypes.func
 }
 /* istanbul ignore next */
-export const start = () => {
+export const start = async () => {
     const AppConfig = getAppConfig()
     const rootEl = document.getElementsByClassName('react-target')[0]
     const data = JSON.parse(document.getElementById('mobify-data').innerHTML)
@@ -113,11 +125,19 @@ export const start = () => {
     // been warned.
     window.__HYDRATING__ = true
 
+    // Load all the configured Application Extensions and provide them to the
+    const applicationExtensions = await getApplicationExtensions()
+    const WrappedApp = withApplicationExtensions(routeComponent(App, false, locals), {
+        applicationExtensions,
+        locals
+    })
+
     const props = {
         error: window.__ERROR__,
         locals: locals,
         routes: getRoutes(locals),
-        WrappedApp: routeComponent(App, false, locals)
+        extensions: applicationExtensions,
+        WrappedApp
     }
 
     return Promise.resolve()

@@ -1,4 +1,6 @@
-## v5.1.0-dev (TBD)
+## v4.1.0-dev (Aug 8, 2024)
+- Remove "Shared UI" folder as we are not supporting replacement of Chakra UI for this template [#2022](https://github.com/SalesforceCommerceCloud/pwa-kit/pull/2022)
+- Marked the package as private to prepare for its removal in a future ticket
 
 - [BUG] Fixed GET /shopper-context API calls being made without the usid [#2206](https://github.com/SalesforceCommerceCloud/pwa-kit/pull/2206)
 - Update test data references to 2024, and unify to 01/2040 [#2196](https://github.com/SalesforceCommerceCloud/pwa-kit/pull/2197)

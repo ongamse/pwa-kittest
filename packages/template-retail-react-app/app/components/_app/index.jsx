@@ -21,14 +21,7 @@ import logger from '@salesforce/retail-react-app/app/utils/logger-instance'
 import {useAppOrigin} from '@salesforce/retail-react-app/app/hooks/use-app-origin'
 
 // Chakra
-import {
-    Box,
-    Center,
-    Fade,
-    Spinner,
-    useDisclosure,
-    useStyleConfig
-} from '@salesforce/retail-react-app/app/components/shared/ui'
+import {Box, Center, Fade, Spinner, useDisclosure, useStyleConfig} from '@chakra-ui/react'
 import {SkipNavLink, SkipNavContent} from '@chakra-ui/skip-nav'
 
 // Contexts

@@ -1,3 +1,9 @@
+## v4.0.0-extensibility-preview.3 (Dec 13, 2024)
+## v4.0.0-extensibility-preview.2 (Dec 09, 2024)
+## v4.0.0-extensibility-preview.1 (Dec 09, 2024)
+## v4.0.0-extensibility-preview.0 (Nov 28, 2024)
+## v4.0.0-dev (Jun 21, 2024)
+- Integrate Application Extensions Project. (#2099)[https://github.com/SalesforceCommerceCloud/pwa-kit/pull/2099]
 ## v3.9.0-dev (Oct 29, 2024)
 
 ## v3.8.0 (Oct 28, 2024)

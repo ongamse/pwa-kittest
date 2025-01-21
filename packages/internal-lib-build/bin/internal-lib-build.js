@@ -31,9 +31,9 @@ const main = () => {
         sh.rm('-rf', './dist')
         sh.mkdir('./dist')
         execSync(
-            `${babel} --config-file ${babelConfig} src -x ".js",".jsx",".ts",".tsx" --ignore "**/test_fixtures/*","*.test.js","test.js" --out-dir dist --copy-files`
+            `"${babel}" --config-file "${babelConfig}" src -x ".js",".jsx",".ts",".tsx" --ignore "**/test_fixtures/*","*.test.js","test.js" --out-dir dist --copy-files`
         )
-        execSync(`node ${prepareDist}`)
+        execSync(`node "${prepareDist}"`)
     })
 
     program
@@ -51,7 +51,9 @@ const main = () => {
         .action((_, {args}) => {
             const jest = p.join(require.resolve('jest'), '..', '..', '..', '.bin', 'jest')
             execSync(
-                `${jest} --passWithNoTests --maxWorkers=2${args.length ? ' ' + args.join(' ') : ''}`
+                `${jest} --forceExit --passWithNoTests --maxWorkers=2${
+                    args.length ? ' ' + args.join(' ') : ''
+                }`
             )
         })
 

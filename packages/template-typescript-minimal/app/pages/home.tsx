@@ -7,6 +7,8 @@
 import React, {useEffect, useState} from 'react'
 import {useQuery} from '@tanstack/react-query'
 
+import {useApplicationExtensions} from '@salesforce/pwa-kit-extension-sdk/react'
+
 import HelloTS from '../components/hello-typescript'
 import HelloJS from '../components/hello-javascript'
 
@@ -18,7 +20,6 @@ const style = `
 body {
     background: linear-gradient(-45deg, #e73c7e, #23a6d5, #ee7752);
     background-size: 400% 400%;
-    animation: gradient 10s ease infinite;
     height: 100vh;
 }
 @keyframes gradient {
@@ -83,6 +84,7 @@ h1 {
 
 const Home = ({value}: Props) => {
     const [counter, setCounter] = useState(0)
+    const applicationExtensions = useApplicationExtensions()
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -104,6 +106,7 @@ const Home = ({value}: Props) => {
     return (
         <div>
             <style dangerouslySetInnerHTML={{__html: style}} />
+
             <div className="loading-screen">
                 <div className="panel title">
                     <h1>
@@ -132,6 +135,13 @@ const Home = ({value}: Props) => {
                             Client-side JS works if this counter increments: {counter}
                             <br />
                             <br />
+                            Application Extensions work if you see a list below:
+                            <br />
+                            <ul>
+                                {applicationExtensions?.map((extension, index) => (
+                                    <li key={index}>{extension.getName()} Extension</li>
+                                ))}
+                            </ul>
                             <b>You can mix-and-match JS and TS</b>
                             <br />
                             <br />
