@@ -8,7 +8,7 @@
 // Third-Party
 import React from 'react'
 import {RouteProps} from 'react-router-dom'
-
+import {ThemeOverride} from '@chakra-ui/react'
 // Platform Imports
 import {
     ApplicationExtension,
@@ -26,6 +26,7 @@ import {Config} from './types'
 import StoreLocatorPage from './pages/store-locator'
 import {logger} from './logger'
 import extensionMeta from '../extension-meta.json'
+import theme from 'overridable!./theme'
 
 // NOTE: Hey Kevin, this is where you are going to define the type of the store slice for your extension. I imagine that you'll
 // have something that manages the modal being open/closed here.
@@ -80,6 +81,11 @@ class StoreLocatorExtension extends ApplicationExtension<Config> {
             },
             ...routes
         ]
+    }
+
+    // TODO: find a better place for this method
+    public getTheme(): ThemeOverride {
+        return theme
     }
 }
 

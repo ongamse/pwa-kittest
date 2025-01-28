@@ -11,6 +11,7 @@ import type {ApplicationExtensionConfig} from '@salesforce/pwa-kit-extension-sdk
  */
 export interface UserConfig extends ApplicationExtensionConfig {
     path?: string
+    applyTheme?: boolean
     radius?: number
     radiusUnit?: string
     defaultPageSize?: number
