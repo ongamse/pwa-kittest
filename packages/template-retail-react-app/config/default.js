@@ -51,6 +51,10 @@ module.exports = {
             // This differs from the siteId in commerceAPIConfig for testing purposes
             siteId: 'aaij-MobileFirst',
             isProduction: false
+        },
+        dataCloudAPI: {
+            appSourceId: '10a761d0-5d19-41fa-8681-0591d5884e27',
+            tenantId: 'g43g8zrvh1ytcztdmmzg8m3dh1'
         }
     },
     externals: [],
