@@ -27,7 +27,7 @@ import {
 import Hero from '../../components/hero'
 import Seo from '../../components/seo'
 import Section from '../../components/section'
-import ProductScroller from '../../components/product-scroller'
+// import ProductScroller from '../../components/product-scroller'
 
 // Others
 import {getStaticAssetUrl} from '@salesforce/pwa-kit-react-sdk/ssr/universal/utils'
@@ -51,30 +51,30 @@ const Home = () => {
     const intl = useIntl()
     const einstein = useEinstein()
     const {pathname} = useLocation()
-    const {
-        pages: {Home: homeConfig},
-        maxCacheAge: MAX_CACHE_AGE,
-        staleWhileRevalidate: STALE_WHILE_REVALIDATE
-    } = useExtensionConfig()
-    const {res} = useServerContext()
-    if (res) {
-        res.set(
-            'Cache-Control',
-            `s-maxage=${MAX_CACHE_AGE}, stale-while-revalidate=${STALE_WHILE_REVALIDATE}`
-        )
-    }
-
-    const {data: productSearchResult, isLoading} = useProductSearch({
-        parameters: {
-            allImages: true,
-            allVariationProperties: true,
-            expand: ['promotions', 'variations', 'prices', 'images', 'custom_properties'],
-            limit: homeConfig.productLimit,
-            perPricebook: true,
-            refine: [`cgid=${homeConfig.mainCategory}`, 'htype=master']
-        }
-    })
-
+    // const {
+    //     pages: {Home: homeConfig},
+    //     maxCacheAge: MAX_CACHE_AGE,
+    //     staleWhileRevalidate: STALE_WHILE_REVALIDATE
+    // } = useExtensionConfig()
+    // const {res} = useServerContext()
+    // if (res) {
+    //     res.set(
+    //         'Cache-Control',
+    //         `s-maxage=${MAX_CACHE_AGE}, stale-while-revalidate=${STALE_WHILE_REVALIDATE}`
+    //     )
+    // }
+    //
+    // const {data: productSearchResult, isLoading} = useProductSearch({
+    //     parameters: {
+    //         allImages: true,
+    //         allVariationProperties: true,
+    //         expand: ['promotions', 'variations', 'prices', 'images', 'custom_properties'],
+    //         limit: homeConfig.productLimit,
+    //         perPricebook: true,
+    //         refine: [`cgid=${homeConfig.mainCategory}`, 'htype=master']
+    //     }
+    // })
+    //
     /**************** Einstein ****************/
     useEffect(() => {
         einstein.sendViewPage(pathname)
@@ -100,7 +100,7 @@ const Home = () => {
                     alt: 'npx pwa-kit-create-app'
                 }}
                 actions={
-                    <Stack spacing={{base: 4, sm: 6}} direction={{base: 'column', sm: 'row'}}>
+                    <Stack gap={{base: 4, sm: 6}} direction={{base: 'column', sm: 'row'}}>
                         <Button
                             as={Link}
                             href="https://developer.salesforce.com/docs/commerce/pwa-kit-managed-runtime/guide/getting-started.html"
@@ -133,13 +133,13 @@ const Home = () => {
             >
                 <SimpleGrid
                     columns={{base: 1, md: 1, lg: 3}}
-                    spacingX={{base: 1, md: 4}}
-                    spacingY={{base: 4, md: 14}}
+                    columnGap={{base: 1, md: 4}}
+                    rowGap={{base: 4, md: 14}}
                 >
                     {heroFeatures.map((feature, index) => {
                         const featureMessage = feature.message
                         return (
-                            <Link key={index} target="_blank" href={feature.href}>
+                            <Link key={index} target="_blank" href={feature.href} display="block">
                                 <Box
                                     background={'white'}
                                     boxShadow="0px 2px 2px rgba(0, 0, 0, 0.1)"
@@ -165,58 +165,58 @@ const Home = () => {
                 </SimpleGrid>
             </Section>
 
-            {productSearchResult && (
-                <Section
-                    padding={4}
-                    paddingTop={16}
-                    title={intl.formatMessage({
-                        defaultMessage: 'Shop Products',
-                        id: 'home.heading.shop_products'
-                    })}
-                    subtitle={intl.formatMessage(
-                        {
-                            defaultMessage:
-                                'This section contains content from the catalog. {docLink} on how to replace it.',
-                            id: 'home.description.shop_products',
-                            description:
-                                '{docLink} is a html button that links the user to https://sfdc.co/business-manager-manage-catalogs'
-                        },
-                        {
-                            docLink: (
-                                <Link
-                                    target="_blank"
-                                    href={'https://sfdc.co/business-manager-manage-catalogs'}
-                                    textDecoration={'none'}
-                                    position={'relative'}
-                                    _after={{
-                                        position: 'absolute',
-                                        content: `""`,
-                                        height: '2px',
-                                        bottom: '-2px',
-                                        margin: '0 auto',
-                                        left: 0,
-                                        right: 0,
-                                        background: 'gray.700'
-                                    }}
-                                    _hover={{textDecoration: 'none'}}
-                                >
-                                    {intl.formatMessage({
-                                        defaultMessage: 'Read docs',
-                                        id: 'home.link.read_docs'
-                                    })}
-                                </Link>
-                            )
-                        }
-                    )}
-                >
-                    <Stack pt={8} spacing={16}>
-                        <ProductScroller
-                            products={productSearchResult?.hits}
-                            isLoading={isLoading}
-                        />
-                    </Stack>
-                </Section>
-            )}
+            {/*{productSearchResult && (*/}
+            {/*    <Section*/}
+            {/*        padding={4}*/}
+            {/*        paddingTop={16}*/}
+            {/*        title={intl.formatMessage({*/}
+            {/*            defaultMessage: 'Shop Products',*/}
+            {/*            id: 'home.heading.shop_products'*/}
+            {/*        })}*/}
+            {/*        subtitle={intl.formatMessage(*/}
+            {/*            {*/}
+            {/*                defaultMessage:*/}
+            {/*                    'This section contains content from the catalog. {docLink} on how to replace it.',*/}
+            {/*                id: 'home.description.shop_products',*/}
+            {/*                description:*/}
+            {/*                    '{docLink} is a html button that links the user to https://sfdc.co/business-manager-manage-catalogs'*/}
+            {/*            },*/}
+            {/*            {*/}
+            {/*                docLink: (*/}
+            {/*                    <Link*/}
+            {/*                        target="_blank"*/}
+            {/*                        href={'https://sfdc.co/business-manager-manage-catalogs'}*/}
+            {/*                        textDecoration={'none'}*/}
+            {/*                        position={'relative'}*/}
+            {/*                        _after={{*/}
+            {/*                            position: 'absolute',*/}
+            {/*                            content: `""`,*/}
+            {/*                            height: '2px',*/}
+            {/*                            bottom: '-2px',*/}
+            {/*                            margin: '0 auto',*/}
+            {/*                            left: 0,*/}
+            {/*                            right: 0,*/}
+            {/*                            background: 'gray.700'*/}
+            {/*                        }}*/}
+            {/*                        _hover={{textDecoration: 'none'}}*/}
+            {/*                    >*/}
+            {/*                        {intl.formatMessage({*/}
+            {/*                            defaultMessage: 'Read docs',*/}
+            {/*                            id: 'home.link.read_docs'*/}
+            {/*                        })}*/}
+            {/*                    </Link>*/}
+            {/*                )*/}
+            {/*            }*/}
+            {/*        )}*/}
+            {/*    >*/}
+            {/*        <Stack pt={8} gap={16}>*/}
+            {/*            <ProductScroller*/}
+            {/*                products={productSearchResult?.hits}*/}
+            {/*                isLoading={isLoading}*/}
+            {/*            />*/}
+            {/*        </Stack>*/}
+            {/*    </Section>*/}
+            {/*)}*/}
 
             <Section
                 padding={4}
@@ -232,7 +232,7 @@ const Home = () => {
                 })}
             >
                 <Container maxW={'6xl'} marginTop={10}>
-                    <SimpleGrid columns={{base: 1, md: 2, lg: 3}} spacing={10}>
+                    <SimpleGrid columns={{base: 1, md: 2, lg: 3}} gap={10}>
                         {features.map((feature, index) => {
                             const featureMessage = feature.message
                             return (
