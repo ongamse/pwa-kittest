@@ -402,17 +402,27 @@ export const routeComponent = (Wrapped, isPage, locals) => {
  *
  * @private
  */
-export const getRoutes = (locals = {}) => {
+export const getRoutes = async (locals = {}, req = {}) => {
     let _routes = routes
     const {applicationExtensions = []} = locals
     if (typeof routes === 'function') {
-        _routes = routes()
+        _routes = await routes(locals)
     }
 
     // Call the `extendRoutes` function for all the Application Extensions.
-    applicationExtensions.forEach((applicationExtension) => {
-        _routes = applicationExtension.extendRoutes(_routes)
-    })
+    for (const applicationExtension of applicationExtensions) {
+        const applicationExtensionRoutes = await applicationExtension.extendRoutes(_routes, req)
+        const applicationExtensionName = applicationExtension.constructor.name
+        console.log('applicationExtensionName:',applicationExtensionName)
+        const applicationExtensionId = Object.getPrototypeOf(applicationExtension).constructor.id
+        console.log('applicationExtensionId:',applicationExtensionId)
+        applicationExtensionRoutes.forEach((route) => {
+            // Skip if component is already prefixed with the application extension ID
+            if (route.component.displayName.includes(".") && route.component.displayName.match(/^[^.]+/)[0]) return
+            route.component.displayName = `${applicationExtensionId}.${route.component.displayName}`
+        })
+        _routes = [...applicationExtensionRoutes, ..._routes]
+    }
 
     const allRoutes = [
         // NOTE: this route needs to be above _routes, in case _routes has a fallback route of `path: '*'`
