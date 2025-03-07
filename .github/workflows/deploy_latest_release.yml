@@ -3,7 +3,7 @@ on:
   # For testing - to be removed
   push:
     branches:
-      - 'mrt-test-ci-deploy'
+      - 'deploy-demo-env-on-release'
   # Run this workflow when a new Github release is published
   release:
     types: [released]
@@ -11,6 +11,8 @@ on:
 jobs:
   check-latest-release:
     runs-on: ubuntu-latest
+    outputs:
+      IS_LATEST_RELEASE: ${{ steps.checkRelease.outputs.IS_LATEST_RELEASE }}
     steps:  
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,10 +21,20 @@ jobs:
         uses: ./.github/actions/check_if_latest_release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Update Github Outputs
+        id: checkRelease
+        run: |-
+          IS_LATEST_RELEASE=$(echo ${{ env.IS_LATEST_RELEASE }})
+          echo "IS_LATEST_RELEASE=${{ env.IS_LATEST_RELEASE }}" >> "$GITHUB_OUTPUT"
+          if [ $IS_LATEST_RELEASE != "true" ]; then
+            echo "Deploy is not for the latest release. Stopping deployment"
+          fi
 
   deploy-bug-bounty:
     needs: check-latest-release
     runs-on: ubuntu-latest
+    if: needs.check-latest-release.outputs.IS_LATEST_RELEASE == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -58,3 +70,43 @@ jobs:
           PROJECT: pwa-kit
           MESSAGE: "tag ${{ github.event.release.tag_name }}"
           FLAGS: --cloud-origin https://cloud-testing.mobify-staging.com -c ~/.mobify --wait
+
+  deploy-demo-site:
+    needs: check-latest-release
+    runs-on: ubuntu-latest
+    if: needs.check-latest-release.outputs.IS_LATEST_RELEASE == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        id: setup_node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install Monorepo Dependencies
+        run: |-
+          # Install node dependencies
+          node ./scripts/gtime.js monorepo_install npm ci
+
+      - name: Generate Retail App Demo
+        uses: ./.github/actions/e2e_generate_app
+        with:
+          PROJECT_KEY: "retail-react-app-demo-site"
+
+      - name: Create MRT credentials file
+        uses: "./.github/actions/create_mrt"
+        with:
+          mobify_user: ${{ secrets.MOBIFY_CLIENT_USER }}
+          mobify_api_key: ${{ secrets.MOBIFY_CLIENT_API_KEY }}
+
+      - name: Push Bundle to MRT (Demo Site)
+        uses: "./.github/actions/push_to_mrt"
+        with:
+          CWD: "../generated-projects/retail-react-app-demo-site"
+          TARGET: production
+          PROJECT: scaffold-pwa
+          MESSAGE: "tag ${{ github.event.release.tag_name }}"
+          FLAGS: --wait
